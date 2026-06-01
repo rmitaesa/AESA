@@ -90,6 +90,12 @@ content:
         path: my-app/src/data/home.json
         format: json
         fields:
+          - name: bannerImage
+            label: Homepage Banner Image
+            type: image
+            required: false
+            options:
+              media: uploads
           - name: focusAreas
             label: Focus Areas
             type: string

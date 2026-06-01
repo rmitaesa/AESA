@@ -29,10 +29,10 @@ import sponsorsData from "./data/sponsors.json";
 import teamData from "./data/team.json";
 
 // Main public website component. The editable content comes from JSON files in
-// src/data so Pages CMS can update text, links, events, team members, and sponsors.
+// src/data so Pages CMS can update text, links, images, events, team members, and sponsors.
 const contactFormEndpoint = import.meta.env.VITE_CONTACT_FORM_ENDPOINT;
 const { club, navItems } = siteSettingsData;
-const { focusAreas, stats } = homeData;
+const { bannerImage = "/panorama.webp", focusAreas, stats } = homeData;
 const { sponsors } = sponsorsData;
 const { activities } = activitiesData;
 const { calendar } = calendarData;
@@ -287,7 +287,11 @@ function HomePage({ stats, nextEvent, navigate, handleContact, contactStatus }) 
   return (
     <>
       <section className="welcome-scroll" aria-label="Welcome to AESA official website">
-        <div className="welcome-image" aria-hidden="true" />
+        <div
+          className="welcome-image"
+          aria-hidden="true"
+          style={{ "--welcome-image": `url("${bannerImage}")` }}
+        />
         <motion.div
           className="welcome-copy"
           initial={{ opacity: 0, y: 26 }}

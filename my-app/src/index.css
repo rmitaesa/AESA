@@ -270,7 +270,7 @@ footer button:hover {
   inset: 0;
   z-index: -2;
   background:
-    url("/panorama.webp") center / cover no-repeat,
+    var(--welcome-image, url("/panorama.webp")) center / cover no-repeat,
     var(--charcoal);
   transform: scale(1.04);
   animation: panorama-drift 18s ease-out forwards;
