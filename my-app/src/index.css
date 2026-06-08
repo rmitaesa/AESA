@@ -1,17 +1,18 @@
 /* Global AESA website styling.
    This file owns the public layout, theme colors, responsive rules, and page sections. */
 :root {
-  --bg: #ffffff;
-  --ink: #111827;
-  --muted: #5f6670;
-  --soft: #f3f4f6;
-  --line: #e5e7eb;
-  --red: #d71920;
-  --red-dark: #b51218;
-  --emerald: #10b981;
-  --amber: #f59e0b;
-  --charcoal: #111827;
-  --white: #ffffff;
+  --bg: #FFFFFF;
+  --ink: #0B1F3F;
+  --muted: #0B1F3F;
+  --soft: #FFFFFF;
+  --line: #0B1F3F;
+  --red: #EA4F51;
+  --red-dark: #EA4F51;
+  --emerald: #EA4F51;
+  --amber: #EA4F51;
+  --charcoal: #000000;
+  --white: #FFFFFF;
+  --black: #000000;
   --radius: 8px;
   font-family: "Outfit", "Segoe UI", Arial, sans-serif;
   color: var(--ink);
@@ -71,8 +72,8 @@ svg {
   /* Subtle grid background used across the main public site. */
   min-height: 100vh;
   background:
-    linear-gradient(90deg, rgba(17, 24, 39, 0.04) 1px, transparent 1px),
-    linear-gradient(rgba(17, 24, 39, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, #FFFFFF 1px, transparent 1px),
+    linear-gradient(#FFFFFF 1px, transparent 1px),
     var(--bg);
   background-size: 42px 42px;
 }
@@ -261,7 +262,7 @@ footer button:hover {
   z-index: -1;
   height: clamp(180px, 24vh, 320px);
   content: "";
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0), var(--bg) 88%);
+  background: linear-gradient(180deg, transparent, var(--bg) 88%);
   pointer-events: none;
 }
 
@@ -281,7 +282,8 @@ footer button:hover {
   inset: 0;
   z-index: -1;
   content: "";
-  background: rgba(17, 24, 39, 0.5);
+  background: #000000;
+  opacity: 0.5;
 }
 .welcome-copy {
   width: min(1120px, calc(100% - 36px));
@@ -491,7 +493,7 @@ h3 {
 }
 
 .mission-card-head span {
-  color: rgba(255, 255, 255, 0.82);
+  color: #FFFFFF;
   font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.12em;
@@ -502,8 +504,8 @@ h3 {
   position: relative;
   min-height: 210px;
   background:
-    linear-gradient(90deg, rgba(17, 24, 39, 0.08) 1px, transparent 1px),
-    linear-gradient(rgba(17, 24, 39, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, #0B1F3F 1px, transparent 1px),
+    linear-gradient(#0B1F3F 1px, transparent 1px),
     var(--white);
   background-size: 24px 24px;
 }
@@ -621,7 +623,7 @@ h3 {
   gap: 12px;
   margin: 0;
   padding-left: 18px;
-  color: #e5e7eb;
+  color: #FFFFFF;
 }
 
 .link-board-title {
@@ -696,7 +698,7 @@ h3 {
 .directory-row:hover small,
 .calendar-row:hover small,
 .calendar-row:hover > span:last-of-type {
-  color: rgba(255, 255, 255, 0.82);
+  color: #FFFFFF;
 }
 
 .directory-row:hover > svg:first-child {
@@ -903,7 +905,7 @@ h3 {
   min-height: 28px;
   padding: 5px 10px;
   color: var(--red);
-  background: #fee2e2;
+  background: #FFFFFF;
   border-radius: 999px;
   font-size: 0.75rem;
   font-weight: 800;
@@ -993,7 +995,7 @@ h3 {
 .activity-card:hover,
 .team-card:hover,
 .past-card:hover {
-  background: #fee2e2;
+  background: #FFFFFF;
   transform: scale(1.02);
 }
 
@@ -1090,7 +1092,7 @@ h3 {
 }
 
 .merch-card:hover {
-  background: #fee2e2;
+  background: #FFFFFF;
   transform: scale(1.02);
 }
 
@@ -1123,7 +1125,7 @@ h3 {
   width: fit-content;
   padding: 7px 10px;
   color: var(--red);
-  background: #fee2e2;
+  background: #FFFFFF;
   border-radius: 999px;
   font-size: 0.72rem;
   font-weight: 900;
@@ -1345,7 +1347,7 @@ footer strong {
 }
 
 footer span {
-  color: #c8ced6;
+  color: #FFFFFF;
 }
 
 footer div:last-child {
@@ -1356,7 +1358,7 @@ footer div:last-child {
 }
 
 footer button {
-  color: #c8ced6;
+  color: #FFFFFF;
 }
 
 footer button:hover {

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
@@ -13,6 +13,7 @@ import {
   MapPin,
   Menu,
   MessageCircle,
+  Plane,
   Radar,
   Send,
   Share2,
@@ -22,7 +23,6 @@ import activitiesData from "./data/activities.json";
 import calendarData from "./data/calendar.json";
 import homeData from "./data/home.json";
 import joinData from "./data/join.json";
-import merchData from "./data/merch.json";
 import pastEventsData from "./data/pastEvents.json";
 import siteSettingsData from "./data/siteSettings.json";
 import sponsorsData from "./data/sponsors.json";
@@ -39,80 +39,49 @@ const { calendar } = calendarData;
 const { executiveTeam, generalCommittee } = teamData;
 const { pastEvents } = pastEventsData;
 const { benefits } = joinData;
-const { merch } = merchData;
-
-function toText(value, fallback = "") {
-  // CMS tools can sometimes save simple list values as objects. Convert those
-  // values back to plain text so React never tries to render an object directly.
-  if (value === null || value === undefined) {
-    return fallback;
-  }
-
-  if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
-    return String(value);
-  }
-
-  if (Array.isArray(value)) {
-    return value.map((item) => toText(item)).filter(Boolean).join(", ") || fallback;
-  }
-
-  if (typeof value === "object") {
-    const preferredKeys = ["value", "label", "title", "name", "text", "url", "href", "Example", "example"];
-    const preferredValue = preferredKeys.map((key) => value[key]).find((item) => item !== undefined && item !== null && item !== "");
-
-    if (preferredValue !== undefined) {
-      return toText(preferredValue, fallback);
-    }
-
-    const firstValue = Object.values(value).find((item) => item !== undefined && item !== null && item !== "");
-    return firstValue !== undefined ? toText(firstValue, fallback) : fallback;
-  }
-
-  return fallback;
-}
 
 function SectionHeader({ eyebrow, title, text }) {
   return (
     <div className="section-header">
-      <p>{toText(eyebrow)}</p>
-      <h2>{toText(title)}</h2>
-      {text && <span>{toText(text)}</span>}
+      <p>{eyebrow}</p>
+      <h2>{title}</h2>
+      {text && <span>{text}</span>}
     </div>
   );
 }
 
 function SocialLink({ href, icon: Icon, label }) {
   return (
-    <a className="social-link" href={toText(href)} target="_blank" rel="noreferrer">
+    <a className="social-link" href={href} target="_blank" rel="noreferrer">
       <Icon size={18} />
-      {toText(label)}
+      {label}
     </a>
   );
 }
 
 function SponsorLogo({ mark, name, logo }) {
-  // If a sponsor logo is missing or broken, show the fallback initials instead.
-  const [failedLogo, setFailedLogo] = useState("");
-  const logoUrl = toText(logo);
-  const sponsorName = toText(name);
-  const failed = failedLogo === logoUrl;
+  const [failed, setFailed] = useState(false);
 
-  if (failed || !logoUrl) {
-    return <span className="sponsor-mark">{toText(mark)}</span>;
+  useEffect(() => {
+    setFailed(false);
+  }, [logo]);
+
+  if (failed) {
+    return <span className="sponsor-mark">{mark}</span>;
   }
 
-  return <img className="sponsor-logo" src={logoUrl} alt={`${sponsorName} logo`} onError={() => setFailedLogo(logoUrl)} />;
+  return <img className="sponsor-logo" src={logo} alt={`${name} logo`} onError={() => setFailed(true)} />;
 }
 
 function PageHero({ eyebrow, title, text, action, onAction }) {
   return (
     <section className="page-hero">
-      <p className="eyebrow">{toText(eyebrow)}</p>
-      <h1>{toText(title)}</h1>
-      <p className="hero-copy">{toText(text)}</p>
+      <p className="eyebrow">{eyebrow}</p>
+      <h1>{title}</h1>
+      <p className="hero-copy">{text}</p>
       {action && (
         <button className="primary" type="button" onClick={onAction}>
-          {toText(action)} <ArrowRight size={18} />
+          {action} <ArrowRight size={18} />
         </button>
       )}
     </section>
@@ -120,11 +89,6 @@ function PageHero({ eyebrow, title, text, action, onAction }) {
 }
 
 function getNextEvent(events) {
-  // Finds the next scheduled calendar item when the optional isoDate field exists.
-  if (!Array.isArray(events) || events.length === 0) {
-    return null;
-  }
-
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -154,8 +118,6 @@ function getNextEvent(events) {
 }
 
 export default function App() {
-  // This is a static GitHub Pages site, so navigation is handled with React state
-  // instead of server routes like /team or /join.
   const [page, setPage] = useState("home");
   const [activeTarget, setActiveTarget] = useState("home");
   const [menuOpen, setMenuOpen] = useState(false);
@@ -177,8 +139,6 @@ export default function App() {
   }
 
   async function handleContact(event) {
-    // If a form endpoint is configured, send there. Otherwise open the visitor's
-    // email app with the message prefilled.
     event.preventDefault();
     setContactStatus("Sending your message...");
 
@@ -204,7 +164,7 @@ export default function App() {
         event.currentTarget.reset();
         setContactStatus("Thanks, your message has been sent to AESA.");
         return;
-      } catch {
+      } catch (error) {
         setContactStatus("We could not send that through the site. Opening your email app instead.");
       }
     }
@@ -224,7 +184,6 @@ export default function App() {
         {page === "activities" && <ActivitiesPage navigate={navigate} />}
         {page === "team" && <TeamPage />}
         {page === "past" && <PastPage />}
-        {page === "merch" && <MerchPage />}
         {page === "join" && <JoinPage />}
       </main>
 
@@ -248,8 +207,8 @@ function Header({ activeTarget, menuOpen, setMenuOpen, navigate }) {
 
       <nav className="desktop-nav" aria-label="Main navigation">
         {navItems.map(({ label, target }) => (
-          <button className={toText(target) === activeTarget ? "active" : ""} key={toText(target)} type="button" onClick={() => navigate(toText(target))}>
-            {toText(label)}
+          <button className={target === activeTarget ? "active" : ""} key={target} type="button" onClick={() => navigate(target)}>
+            {label}
           </button>
         ))}
       </nav>
@@ -275,8 +234,8 @@ function MobileNav({ navigate }) {
   return (
     <nav className="mobile-nav" aria-label="Mobile navigation">
       {navItems.map(({ label, target }) => (
-        <button key={toText(target)} type="button" onClick={() => navigate(toText(target))}>
-          {toText(label)}
+        <button key={target} type="button" onClick={() => navigate(target)}>
+          {label}
         </button>
       ))}
     </nav>
@@ -315,8 +274,8 @@ function HomePage({ stats, nextEvent, navigate, handleContact, contactStatus }) 
             students at RMIT.
           </p>
           <div className="focus-strip" aria-label="AESA focus areas">
-            {focusAreas.map((area, index) => (
-              <span key={`${toText(area)}-${index}`}>{toText(area)}</span>
+            {focusAreas.map((area) => (
+              <span key={area}>{area}</span>
             ))}
           </div>
           <div className="hero-actions">
@@ -348,21 +307,21 @@ function HomePage({ stats, nextEvent, navigate, handleContact, contactStatus }) 
           <div className="mini-orbit" aria-hidden="true">
           <img
                className="plane-wire"
-               src="/Light_Logo_Rev1-removebg-preview.png"
+               s src="/Light_Logo_Rev1-removebg-preview.png"
                alt=""
                />
           </div>
           <div className="stats-grid">
             {stats.map(({ value, label }) => (
-              <div key={toText(label)}>
-                <strong>{toText(value)}</strong>
-                <span>{toText(label)}</span>
+              <div key={label}>
+                <strong>{value}</strong>
+                <span>{label}</span>
               </div>
             ))}
           </div>
           <div className="mission-note">
             <b>Next checkpoint</b>
-            <span>{toText(nextEvent?.title, "Check the calendar for upcoming AESA events")}</span>
+            <span>RMIT AESA x Boeing Factory Visit</span>
             <a href={club.socials.rubricEvents} target="_blank" rel="noreferrer">
               View upcoming events on Rubric
             </a>
@@ -455,9 +414,9 @@ function SponsorSection() {
       />
       <div className="sponsor-list">
         {sponsors.map(({ mark, name, href, logo }) => (
-          <a href={toText(href)} target="_blank" rel="noreferrer" key={toText(name)}>
+          <a href={href} target="_blank" rel="noreferrer" key={name}>
             <SponsorLogo mark={mark} name={name} logo={logo} />
-            <span>{toText(name)}</span>
+            <span>{name}</span>
           </a>
         ))}
       </div>
@@ -475,18 +434,18 @@ function CalendarSection({ navigate }) {
       />
       <div className="calendar-list">
         {calendar.map(({ date, title, location, time, price }) => (
-          <button className="calendar-row" key={toText(title)} type="button" onClick={() => navigate("join")}>
-            <strong>{toText(date)}</strong>
+          <button className="calendar-row" key={title} type="button" onClick={() => navigate("join")}>
+            <strong>{date}</strong>
             <span>
-              <b>{toText(title)}</b>
+              <b>{title}</b>
               <small>
-                <MapPin size={15} /> {toText(location)}
+                <MapPin size={15} /> {location}
               </small>
             </span>
             <span>
-              <Clock size={16} /> {toText(time)}
+              <Clock size={16} /> {time}
             </span>
-            <em>{toText(price)}</em>
+            <em>{price}</em>
           </button>
         ))}
       </div>
@@ -553,10 +512,10 @@ function ActivitiesPage({ navigate }) {
       <section className="band">
         <div className="activity-grid">
           {activities.map(({ title, tag, text }) => (
-            <button className="activity-card" key={toText(title)} type="button" onClick={() => navigate("#calendar")}>
-              <span>{toText(tag)}</span>
-              <h3>{toText(title)}</h3>
-              <p>{toText(text)}</p>
+            <button className="activity-card" key={title} type="button" onClick={() => navigate("#calendar")}>
+              <span>{tag}</span>
+              <h3>{title}</h3>
+              <p>{text}</p>
               <strong>
                 Check calendar <ChevronRight size={16} />
               </strong>
@@ -609,45 +568,37 @@ function TeamSection({ title, members, category }) {
 }
 
 function TeamMemberBlock({ member }) {
-  const { name, pronouns, role, photo, photoFit, photoX, photoY, photoZoom } = member;
-  const memberName = toText(name, "AESA member");
-  const memberPronouns = toText(pronouns);
-  const memberRole = toText(role);
-  const photoUrl = toText(photo);
-  const fit = toText(photoFit, "cover");
-  const x = toText(photoX, "50");
-  const y = toText(photoY, "50");
-  const zoom = toText(photoZoom, "1");
+  const { name, pronouns, role, photo, photoFit, photoX, photoY, photoZoom, category } = member;
 
   return (
     <article className="team-member-block">
       <div className="team-avatar">
-        {photoUrl ? (
+        {photo ? (
           <img
-            src={photoUrl}
-            alt={memberName}
+            src={photo}
+            alt={name}
             style={{
-              objectFit: fit,
-              objectPosition: `${x}% ${y}%`,
-              transform: `scale(${zoom})`,
-            }}
+              objectFit: "cover",
+             objectPosition: "center center",
+              transform: `scale(${photoZoom || "1"})`
+          }}
           />
         ) : (
-          <span>{getInitials(memberName)}</span>
+          <span>{getInitials(name)}</span>
         )}
       </div>
       <span className="team-role-badge">
        <BriefcaseBusiness size={12} />
-       {memberRole}
+       {role}
       </span>
-      <h3>{memberName}</h3>
-      {memberPronouns && <small className="team-pronouns">{memberPronouns}</small>}
+      <h3>{name}</h3>
+      {pronouns && <small className="team-pronouns">{pronouns}</small>}
     </article>
   );
 }
 
 function getInitials(name) {
-  return toText(name)
+  return name
     .split(" ")
     .filter(Boolean)
     .slice(0, 2)
@@ -656,9 +607,47 @@ function getInitials(name) {
     .toUpperCase();
 }
 
+function TeamBranch({ title, members }) {
+  return (
+    <section className="team-branch">
+      <h2>{title}</h2>
+      <div className="team-grid">
+        {members.map((member) => {
+          const { name, pronouns, role, text, photo } = normalizeTeamMember(member);
+          const photoFit = member.photoFit || "cover";
+          const photoX = member.photoX ?? 50;
+          const photoY = member.photoY ?? 50;
+          const photoZoom = member.photoZoom || member.photoScale || "1";
+
+          return (
+            <article className="team-card" key={`${title}-${name}`}>
+              {photo && (
+                <div className="team-photo-frame">
+                  <img
+                    className="team-photo"
+                    src={photo}
+                    alt={name}
+                    style={{ objectFit: photoFit, objectPosition: `${photoX}% ${photoY}%`, transform: `scale(${photoZoom})` }}
+                  />
+                </div>
+              )}
+              <h3>
+                {name}
+                {pronouns && <small>{pronouns}</small>}
+              </h3>
+              <p>{role}</p>
+              {text && <span>{text}</span>}
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 function normalizeTeamMember(member) {
   if (!Array.isArray(member)) {
-    return { photoFit: "cover", photoX: 50, photoY: 50, photoZoom: "1", ...(member || {}) };
+    return { photoFit: "cover", photoX: 50, photoY: 50, photoZoom: "1", ...member };
   }
 
   if (member.length >= 5) {
@@ -686,80 +675,20 @@ function PastPage() {
       <section className="band">
         <div className="past-grid">
           {pastEvents.map((event) => (
-            <a className="past-card" href={club.socials.instagram} target="_blank" rel="noreferrer" key={toText(event.title)}>
-              <img src={toText(event.image)} alt={toText(event.title)} />
+            <a className="past-card" href={club.socials.instagram} target="_blank" rel="noreferrer" key={event.title}>
+              <img src={event.image} alt={event.title} />
               <div>
                 <span>
-                  <Camera size={15} /> {toText(event.year)}
+                  <Camera size={15} /> {event.year}
                 </span>
-                <h3>{toText(event.title)}</h3>
-                <p>{toText(event.text)}</p>
+                <h3>{event.title}</h3>
+                <p>{event.text}</p>
               </div>
             </a>
           ))}
         </div>
       </section>
     </>
-  );
-}
-
-function MerchPage() {
-  const items = Array.isArray(merch.items) ? merch.items : [];
-
-  return (
-    <>
-      <PageHero eyebrow={merch.eyebrow} title={merch.title} text={merch.text} />
-      <section className="band merch-band">
-        <div className="merch-grid">
-          {items.map((item) => (
-            <MerchCard item={item} key={toText(item.name, "Merch item")} />
-          ))}
-        </div>
-        <div className="merch-order-note">
-          <Mail size={18} />
-          <span>{toText(merch.orderNote, "To buy AESA merch, visit the AESA Rubric page.")}</span>
-          <a href={club.socials.rubric} target="_blank" rel="noreferrer">
-            Open Rubric <ArrowRight size={16} />
-          </a>
-        </div>
-      </section>
-    </>
-  );
-}
-
-function MerchCard({ item }) {
-  const productName = toText(item.name, "AESA merch");
-  const productImage = toText(item.image);
-
-  return (
-    <article className="merch-card">
-      <div className="merch-image">
-        {productImage ? <img src={productImage} alt={productName} /> : <span>{getInitials(productName)}</span>}
-      </div>
-      <div className="merch-card-body">
-        <span className="merch-status">{toText(item.status, "Coming soon")}</span>
-        <h3>{productName}</h3>
-        <p>{toText(item.description, "Merch details will be added soon.")}</p>
-        <dl className="merch-details">
-          <div>
-            <dt>Price</dt>
-            <dd>{toText(item.price, "Price TBC")}</dd>
-          </div>
-          <div>
-            <dt>Options</dt>
-            <dd>{toText(item.options, "Options TBC")}</dd>
-          </div>
-          <div>
-            <dt>Order</dt>
-            <dd>
-              <a className="merch-order-link" href={club.socials.rubric} target="_blank" rel="noreferrer">
-                {toText(item.order, "Buy through AESA Rubric")} <ArrowRight size={15} />
-              </a>
-            </dd>
-          </div>
-        </dl>
-      </div>
-    </article>
   );
 }
 
@@ -774,8 +703,8 @@ function JoinPage() {
         />
         <div className="benefits">
           {benefits.map((benefit) => (
-            <p key={toText(benefit)}>
-              <CheckCircle2 size={19} /> {toText(benefit)}
+            <p key={benefit}>
+              <CheckCircle2 size={19} /> {benefit}
             </p>
           ))}
         </div>
@@ -798,13 +727,13 @@ function Footer({ navigate }) {
   return (
     <footer>
       <div>
-        <strong>{toText(club.name)}</strong>
+        <strong>{club.name}</strong>
         <span>RMIT aerospace engineering student association</span>
       </div>
       <div>
         {navItems.slice(0, 5).map(({ label, target }) => (
-          <button key={toText(target)} type="button" onClick={() => navigate(toText(target))}>
-            {toText(label)}
+          <button key={target} type="button" onClick={() => navigate(target)}>
+            {label}
           </button>
         ))}
       </div>
