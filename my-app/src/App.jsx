@@ -17,12 +17,14 @@ import {
   Radar,
   Send,
   Share2,
+  ShoppingBag,
   X,
 } from "lucide-react";
 import activitiesData from "./data/activities.json";
 import calendarData from "./data/calendar.json";
 import homeData from "./data/home.json";
 import joinData from "./data/join.json";
+import merchData from "./data/merch.json";
 import pastEventsData from "./data/pastEvents.json";
 import siteSettingsData from "./data/siteSettings.json";
 import sponsorsData from "./data/sponsors.json";
@@ -39,6 +41,7 @@ const { calendar } = calendarData;
 const { executiveTeam, generalCommittee } = teamData;
 const { pastEvents } = pastEventsData;
 const { benefits } = joinData;
+const { merch } = merchData;
 
 function SectionHeader({ eyebrow, title, text }) {
   return (
@@ -184,6 +187,7 @@ export default function App() {
         {page === "activities" && <ActivitiesPage navigate={navigate} />}
         {page === "team" && <TeamPage />}
         {page === "past" && <PastPage />}
+        {page === "merch" && <MerchPage />}
         {page === "join" && <JoinPage />}
       </main>
 
@@ -685,6 +689,63 @@ function PastPage() {
                 <p>{event.text}</p>
               </div>
             </a>
+          ))}
+        </div>
+      </section>
+    </>
+  );
+}
+
+function MerchPage() {
+  const items = merch?.items || [];
+
+  return (
+    <>
+      <PageHero
+        eyebrow={merch.eyebrow}
+        title={merch.title}
+        text={merch.text}
+        action="Open Rubric"
+        onAction={() => window.open(club.socials.rubric, "_blank", "noreferrer")}
+      />
+      <section className="band merch-band">
+        <div className="merch-order-note">
+          <ShoppingBag size={20} />
+          <span>{merch.orderNote}</span>
+          <a href={club.socials.rubric} target="_blank" rel="noreferrer">
+            AESA Rubric <ArrowRight size={16} />
+          </a>
+        </div>
+
+        <div className="merch-grid">
+          {items.map(({ name, image, description, price, options, status, order }) => (
+            <article className="merch-card" key={name}>
+              <div className="merch-image">
+                {image ? <img src={image} alt={name} /> : <span>AESA</span>}
+              </div>
+              <div className="merch-card-body">
+                {status && <span className="merch-status">{status}</span>}
+                <h3>{name}</h3>
+                {description && <p>{description}</p>}
+                <dl className="merch-details">
+                  {price && (
+                    <div>
+                      <dt>Price</dt>
+                      <dd>{price}</dd>
+                    </div>
+                  )}
+                  {options && (
+                    <div>
+                      <dt>Sizes</dt>
+                      <dd>{options}</dd>
+                    </div>
+                  )}
+                </dl>
+                <a className="merch-order-link" href={club.socials.rubric} target="_blank" rel="noreferrer">
+                  {order || "Buy through AESA Rubric"} <ArrowRight size={16} />
+                </a>
+              </div>
+            </article>
           ))}
         </div>
       </section>
