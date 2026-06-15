@@ -192,6 +192,7 @@ export default function App() {
       </main>
 
       <Footer navigate={navigate} />
+      <InstagramChatWidget />
     </div>
   );
 }
@@ -781,6 +782,90 @@ function JoinPage() {
         <p>Memberships, tickets, and live event registration are handled through AESA's official Rubric page.</p>
       </div>
     </section>
+  );
+}
+
+const chatPrompts = [
+  {
+    label: "Membership",
+    message: "Hi AESA, I have a question about joining the club.",
+  },
+  {
+    label: "Events",
+    message: "Hi AESA, I wanted to ask about upcoming events.",
+  },
+  {
+    label: "Merch",
+    message: "Hi AESA, I have a question about AESA merch.",
+  },
+  {
+    label: "Sponsorship",
+    message: "Hi AESA, I would like to ask about sponsorship or collaboration opportunities.",
+  },
+];
+
+function InstagramChatWidget() {
+  const [open, setOpen] = useState(false);
+  const [message, setMessage] = useState(chatPrompts[0].message);
+  const [status, setStatus] = useState("");
+  const instagramDmUrl = "https://ig.me/m/rmitaesa";
+
+  async function openInstagramDm() {
+    const text = message.trim() || chatPrompts[0].message;
+
+    try {
+      await navigator.clipboard.writeText(text);
+      setStatus("Message copied. Paste it into Instagram DM.");
+    } catch (error) {
+      setStatus("Instagram is opening. Copy your message before sending if needed.");
+    }
+
+    window.open(instagramDmUrl, "_blank", "noreferrer");
+  }
+
+  return (
+    <aside className={`chat-widget ${open ? "open" : ""}`} aria-label="Ask AESA on Instagram">
+      {open && (
+        <div className="chat-panel">
+          <div className="chat-panel-header">
+            <span>
+              <MessageCircle size={17} />
+              Ask AESA
+            </span>
+            <button type="button" onClick={() => setOpen(false)} aria-label="Close Instagram chat">
+              <X size={18} />
+            </button>
+          </div>
+          <div className="chat-presets" aria-label="Quick message topics">
+            {chatPrompts.map((prompt) => (
+              <button
+                className={message === prompt.message ? "active" : ""}
+                key={prompt.label}
+                type="button"
+                onClick={() => {
+                  setMessage(prompt.message);
+                  setStatus("");
+                }}
+              >
+                {prompt.label}
+              </button>
+            ))}
+          </div>
+          <label className="chat-message-field">
+            Message
+            <textarea value={message} onChange={(event) => setMessage(event.target.value)} />
+          </label>
+          <button className="primary chat-send" type="button" onClick={openInstagramDm}>
+            Open Instagram DM <Send size={17} />
+          </button>
+          {status && <p className="chat-status">{status}</p>}
+        </div>
+      )}
+      <button className="chat-launcher" type="button" onClick={() => setOpen((current) => !current)} aria-expanded={open}>
+        {open ? <X size={22} /> : <MessageCircle size={22} />}
+        <span>{open ? "Close" : "Ask AESA"}</span>
+      </button>
+    </aside>
   );
 }
 
