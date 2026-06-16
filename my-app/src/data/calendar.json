@@ -1,20 +1,20 @@
 {
   "calendar": [
     {
-      "date": "May 29",
-      "title": "RMIT AESA x Boeing Factory Visit",
-      "location": "224-260 Lorimer St, Port Melbourne VIC 3207",
-      "time": "9:45 AM",
-      "price": "Sold Out",
-      "isoDate": "2026-05-29"
-    },
-    {
       "date": "18 Sep",
       "title": "ENG BALL 2026",
       "location": "Melbourne Pavilion",
       "time": "7:00pm - 11:00pm",
       "price": "Soon to be announced",
       "isoDate": "2026-09-18"
+    },
+    {
+      "date": "May 29",
+      "title": "RMIT AESA x Boeing Factory Visit",
+      "location": "224-260 Lorimer St, Port Melbourne VIC 3207",
+      "time": "9:45 AM",
+      "price": "Sold Out",
+      "isoDate": "2026-05-29"
     },
     {
       "date": "7 May",
