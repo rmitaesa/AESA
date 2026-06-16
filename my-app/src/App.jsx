@@ -326,7 +326,7 @@ function HomePage({ stats, nextEvent, navigate, handleContact, contactStatus }) 
           </div>
           <div className="mission-note">
             <b>Next checkpoint</b>
-            <span>RMIT AESA x Boeing Factory Visit</span>
+            <span>ENG BALL</span>
             <a href={club.socials.rubricEvents} target="_blank" rel="noreferrer">
               View upcoming events on Rubric
             </a>
